@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxifierProfile version="101" platform="Windows" product_id="0" product_minver="310">
+  <Options>
+    <Resolve>
+      <AutoModeDetection enabled="true"/>
+      <ViaProxy enabled="false"/>
+      <TryLocalDnsFirst enabled="false"/>
+    </Resolve>
+    <Encryption mode="basic"/>
+    <HttpProxiesSupport enabled="false"/>
+    <HandleDirectConnections enabled="true"/>
+    <ConnectionLoopDetection enabled="true"/>
+    <ProcessServices enabled="true"/>
+    <ProcessOtherUsers enabled="true"/>
+  </Options>
+  <ProxyList>
+    <Proxy id="100" type="SOCKS5">
+      <Address>170.80.78.216</Address>
+      <Port>8088</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="101" type="SOCKS5">
+      <Address>131.100.51.144</Address>
+      <Port>999</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="102" type="SOCKS5">
+      <Address>163.53.180.115</Address>
+      <Port>60606</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="103" type="SOCKS5">
+      <Address>8.211.194.85</Address>
+      <Port>144</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="104" type="SOCKS5">
+      <Address>27.72.122.228</Address>
+      <Port>51067</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="105" type="SOCKS5">
+      <Address>192.214.193.136</Address>
+      <Port>8080</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="106" type="SOCKS5">
+      <Address>64.49.36.181</Address>
+      <Port>8085</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="107" type="SOCKS5">
+      <Address>51.158.108.134</Address>
+      <Port>16379</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="108" type="SOCKS5">
+      <Address>182.253.38.179</Address>
+      <Port>3128</Port>
+      <Options>48</Options>
+    </Proxy>
+    <Proxy id="109" type="SOCKS5">
+      <Address>147.75.34.92</Address>
+      <Port>9443</Port>
+      <Options>48</Options>
+    </Proxy>
+  </ProxyList>
+  <ChainList/>
+  <RuleList>
+    <Rule enabled="true">
+      <Name>Default</Name>
+      <Action type="Proxy">100</Action>
+    </Rule>
+  </RuleList>
+</ProxifierProfile>
