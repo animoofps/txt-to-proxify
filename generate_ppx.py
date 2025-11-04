@@ -37,7 +37,7 @@ PROFILE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </Rule>
   </RuleList>
 </ProxifierProfile>
-"""  # <-- make sure this closing """ is here
+"""
 
 def fetch_proxy_list(url):
     resp = requests.get(url, timeout=TIMEOUT)
@@ -78,23 +78,28 @@ def check_ips_proxycheck(ips):
     for ip, info in result.items():
         if ip == "status":
             continue
-        # Handle if info is string/boolean
-        if isinstance(info, (str, bool)):
-            # If it's string, e.g. "no" => not proxy
-            if str(info).lower() in ("no", "false"):
+
+        # If info is dict:
+        if isinstance(info, dict):
+            proxy_flag = info.get("proxy", False)
+            hosting_flag = info.get("hosting", False)
+            # If they are strings, convert:
+            if isinstance(proxy_flag, str):
+                proxy_flag = proxy_flag.lower() == "yes"
+            if isinstance(hosting_flag, str):
+                hosting_flag = hosting_flag.lower() == "yes"
+            if not proxy_flag and not hosting_flag:
                 good_ips.append(ip)
-            continue
-        # Now info is likely a dict
-        # Some keys might be booleans or strings
-        proxy_flag = info.get("proxy", False)
-        hosting_flag = info.get("hosting", False)
-        # Convert string flags to boolean if needed
-        if isinstance(proxy_flag, str):
-            proxy_flag = proxy_flag.lower() == "yes"
-        if isinstance(hosting_flag, str):
-            hosting_flag = hosting_flag.lower() == "yes"
-        if not proxy_flag and not hosting_flag:
-            good_ips.append(ip)
+        else:
+            # If info is simple type: int, bool, or str
+            # We treat non‑proxy only if it clearly says “no” or False
+            if isinstance(info, bool):
+                if info is False:
+                    good_ips.append(ip)
+            else:
+                # string or number: convert to str and check
+                if str(info).lower() in ("no", "false", "0"):
+                    good_ips.append(ip)
     print(f"{len(good_ips)} IPs passed ProxyCheck filter.")
     return good_ips
 
@@ -134,7 +139,7 @@ def write_profile(proxies):
 def main():
     proxies = fetch_proxy_list(SOURCE_URL)
     ip_list = [ip for (ip, port) in proxies]
-    filtered_ips = check_ips_proxycheck(ip_list[:500])  # limit to first 500 IPs for API usage
+    filtered_ips = check_ips_proxycheck(ip_list[:500])  # limit for API
     good = []
     for ip, port in proxies:
         if len(good) >= MAX_GOOD:
@@ -155,4 +160,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
