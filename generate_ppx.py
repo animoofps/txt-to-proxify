@@ -27,4 +27,117 @@ PROFILE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <ProcessOtherUsers enabled="true"/>
   </Options>
   <ProxyList>
-    {proxy_entri_
+    {proxy_entries}
+  </ProxyList>
+  <ChainList/>
+  <RuleList>
+    <Rule enabled="true">
+      <Name>Default</Name>
+      <Action type="Proxy">{first_proxy_id}</Action>
+    </Rule>
+  </RuleList>
+</ProxifierProfile>
+"""  # <-- make sure this closing """ is here
+
+def fetch_proxy_list(url):
+    resp = requests.get(url, timeout=TIMEOUT)
+    resp.raise_for_status()
+    lines = resp.text.splitlines()
+    proxies = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split(":")
+        if len(parts) < 2:
+            continue
+        ip = parts[0]
+        port = parts[1]
+        proxies.append((ip, port))
+    print(f"Fetched {len(proxies)} proxies from source.")
+    return proxies
+
+def check_ips_proxycheck(ips):
+    # ips: list of IP strings (without port) to check via ProxyCheck.io
+    url = "https://proxycheck.io/v3/"
+    params = {
+        "key": API_KEY,
+        "vpn": 1,
+        "risk": 1
+    }
+    data = {
+        "ips": ",".join(ips)
+    }
+    try:
+        resp = requests.post(url, params=params, data=data, timeout=TIMEOUT)
+        resp.raise_for_status()
+        result = resp.json()
+    except Exception as e:
+        print("ProxyCheck API error:", e)
+        return []
+    good_ips = []
+    for ip, info in result.items():
+        if ip == "status":
+            continue
+        if not info.get("proxy", False) and not info.get("hosting", False):
+            good_ips.append(ip)
+    print(f"{len(good_ips)} IPs passed ProxyCheck filter.")
+    return good_ips
+
+def test_proxy(ip, port):
+    proxy_url = f"socks5://{ip}:{port}"
+    proxies = {
+        "http": proxy_url,
+        "https": proxy_url
+    }
+    try:
+        resp = requests.get(TEST_URL, proxies=proxies, timeout=TIMEOUT)
+        if resp.status_code == 200:
+            return True
+    except Exception:
+        pass
+    return False
+
+def build_proxy_entries(proxies):
+    entries = []
+    for idx, (ip, port) in enumerate(proxies, start=100):
+        entry = (f"""<Proxy id="{idx}" type="SOCKS5">
+      <Address>{ip}</Address>
+      <Port>{port}</Port>
+      <Options>48</Options>
+    </Proxy>""")
+        entries.append(entry)
+    return "\n    ".join(entries)
+
+def write_profile(proxies):
+    entries_xml = build_proxy_entries(proxies)
+    first_id = 100 if proxies else 100
+    content = PROFILE_TEMPLATE.format(proxy_entries=entries_xml, first_proxy_id=first_id)
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"Wrote {len(proxies)} working proxies to {OUTPUT_FILE}")
+
+def main():
+    proxies = fetch_proxy_list(SOURCE_URL)
+    ip_list = [ip for (ip, port) in proxies]
+    filtered_ips = check_ips_proxycheck(ip_list[:500])  # limit to first 500 IPs for API usage
+    good = []
+    for ip, port in proxies:
+        if len(good) >= MAX_GOOD:
+            break
+        if ip not in filtered_ips:
+            continue
+        print(f"Testing proxy {ip}:{port} …", end="", flush=True)
+        if test_proxy(ip, port):
+            print(" SUCCESS")
+            good.append((ip, port))
+        else:
+            print(" FAIL")
+    if not good:
+        print("No working proxies found – aborting.")
+        return
+    write_profile(good)
+    print("Done.")
+
+if __name__ == "__main__":
+    main()
