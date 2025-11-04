@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import requests
 import xml.etree.ElementTree as ET
-import time
 
 # Configuration
 SOURCE_URL = "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"
@@ -34,8 +33,9 @@ PROFILE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 </ProxifierProfile>
 """
 
-TEST_URL = "https://www.google.com/"  # or any simple site you expect to work
-TIMEOUT = 5  # seconds
+TEST_URL = "https://www.google.com/"
+TIMEOUT = 15  # seconds per proxy test
+MAX_GOOD = 100  # stop once we find this many working proxies
 
 def fetch_proxy_list(url):
     resp = requests.get(url)
@@ -64,7 +64,7 @@ def test_proxy(ip, port):
         resp = requests.get(TEST_URL, proxies=proxies, timeout=TIMEOUT)
         if resp.status_code == 200:
             return True
-    except Exception as e:
+    except Exception:
         pass
     return False
 
@@ -85,18 +85,22 @@ def write_profile(proxies):
     content = PROFILE_TEMPLATE.format(proxy_entries=entries_xml, first_proxy_id=first_id)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(content)
-    print(f"Wrote {len(proxies)} proxies to {OUTPUT_FILE}")
+    print(f"Wrote {len(proxies)} working proxies to {OUTPUT_FILE}")
 
 def main():
+    print("Fetching proxy list...")
     proxies = fetch_proxy_list(SOURCE_URL)
     print(f"Fetched {len(proxies)} proxies from source.")
     good = []
     for ip, port in proxies:
+        if len(good) >= MAX_GOOD:
+            break
+        print(f"Testing proxy {ip}:{port} …", end="", flush=True)
         if test_proxy(ip, port):
-            print(f"Working proxy: {ip}:{port}")
+            print(" SUCCESS")
             good.append((ip, port))
         else:
-            print(f"Bad proxy: {ip}:{port}")
+            print(" FAIL")
     if not good:
         print("No working proxies found – aborting.")
         return
