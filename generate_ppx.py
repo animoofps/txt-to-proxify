@@ -74,7 +74,8 @@ def main():
     if not proxies:
         print("No proxies found – aborting.")
         return
-    write_profile(proxies[:10])  # limit to first 10 for example
+    write_profile(proxies)
 
 if __name__ == "__main__":
     main()
+
