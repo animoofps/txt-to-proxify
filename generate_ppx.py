@@ -58,7 +58,6 @@ def fetch_proxy_list(url):
     return proxies
 
 def check_ips_proxycheck(ips):
-    # ips: list of IP strings (without port) to check via ProxyCheck.io
     url = "https://proxycheck.io/v3/"
     params = {
         "key": API_KEY,
@@ -79,7 +78,22 @@ def check_ips_proxycheck(ips):
     for ip, info in result.items():
         if ip == "status":
             continue
-        if not info.get("proxy", False) and not info.get("hosting", False):
+        # Handle if info is string/boolean
+        if isinstance(info, (str, bool)):
+            # If it's string, e.g. "no" => not proxy
+            if str(info).lower() in ("no", "false"):
+                good_ips.append(ip)
+            continue
+        # Now info is likely a dict
+        # Some keys might be booleans or strings
+        proxy_flag = info.get("proxy", False)
+        hosting_flag = info.get("hosting", False)
+        # Convert string flags to boolean if needed
+        if isinstance(proxy_flag, str):
+            proxy_flag = proxy_flag.lower() == "yes"
+        if isinstance(hosting_flag, str):
+            hosting_flag = hosting_flag.lower() == "yes"
+        if not proxy_flag and not hosting_flag:
             good_ips.append(ip)
     print(f"{len(good_ips)} IPs passed ProxyCheck filter.")
     return good_ips
@@ -141,3 +155,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
