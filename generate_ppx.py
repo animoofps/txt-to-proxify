@@ -8,7 +8,7 @@ API_KEY = os.getenv("PROXYCHECK_API_KEY")   # API key fetched from environment v
 SOURCE_URL = "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"
 OUTPUT_FILE = "proxy_profile.ppx"
 TEST_URL = "https://www.google.com/"
-TIMEOUT = 15  # seconds per proxy test
+TIMEOUT = 30  # seconds per proxy test
 MAX_GOOD = 5  # stop once we find this many working proxies
 
 PROFILE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -160,4 +160,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
