@@ -9,7 +9,7 @@ SOURCE_URL = "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/sock
 OUTPUT_FILE = "proxy_profile.ppx"
 TEST_URL = "https://www.google.com/"
 TIMEOUT = 15  # seconds per proxy test
-MAX_GOOD = 100  # stop once we find this many working proxies
+MAX_GOOD = 5  # stop once we find this many working proxies
 
 PROFILE_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ProxifierProfile version="101" platform="Windows" product_id="0" product_minver="310">
@@ -160,3 +160,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
