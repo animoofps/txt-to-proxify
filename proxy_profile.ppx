@@ -15,28 +15,28 @@
   </Options>
   <ProxyList>
     <Proxy id="100" type="SOCKS5">
-      <Address>165.154.20.187</Address>
-      <Port>10808</Port>
+      <Address>45.74.31.46</Address>
+      <Port>5676</Port>
       <Options>48</Options>
     </Proxy>
     <Proxy id="101" type="SOCKS5">
-      <Address>103.155.185.26</Address>
-      <Port>1088</Port>
+      <Address>143.110.161.67</Address>
+      <Port>10000</Port>
       <Options>48</Options>
     </Proxy>
     <Proxy id="102" type="SOCKS5">
-      <Address>45.74.31.40</Address>
-      <Port>7654</Port>
+      <Address>45.74.31.46</Address>
+      <Port>10567</Port>
       <Options>48</Options>
     </Proxy>
     <Proxy id="103" type="SOCKS5">
-      <Address>45.74.31.40</Address>
-      <Port>5164</Port>
+      <Address>212.77.75.25</Address>
+      <Port>1088</Port>
       <Options>48</Options>
     </Proxy>
     <Proxy id="104" type="SOCKS5">
-      <Address>45.74.31.46</Address>
-      <Port>5153</Port>
+      <Address>70.36.125.37</Address>
+      <Port>10808</Port>
       <Options>48</Options>
     </Proxy>
   </ProxyList>
